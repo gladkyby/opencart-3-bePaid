@@ -31,14 +31,14 @@ class ControllerExtensionPaymentBeGateway extends Controller {
     $orderAmount = intval(strval($orderAmount));
 
     $customer_array =  array (
-      'address' => strlen($order_info['payment_address_1']) > 0 ? $order_info['payment_address_1'] : null,
+      /*'address' => strlen($order_info['payment_address_1']) > 0 ? $order_info['payment_address_1'] : null,
       'first_name' => strlen($order_info['payment_firstname']) > 0 ? $order_info['payment_firstname'] : null,
       'last_name' => strlen($order_info['payment_lastname']) > 0 ? $order_info['payment_lastname'] : null,
       'country' => strlen($order_info['payment_iso_code_2']) > 0 ? $order_info['payment_iso_code_2'] : null,
       'city'=> strlen($order_info['payment_city']) > 0 ? $order_info['payment_city'] : null,
       'phone' => strlen($order_info['telephone']) > 0 ? $order_info['telephone'] : null,
       'email'=> strlen($order_info['email']) > 0 ? $order_info['email'] : null,
-      'zip' => strlen($order_info['payment_postcode']) > 0 ? $order_info['payment_postcode'] : null,
+      'zip' => strlen($order_info['payment_postcode']) > 0 ? $order_info['payment_postcode'] : null,*/
       'ip' => $this->request->server['REMOTE_ADDR']
     );
 
@@ -180,6 +180,65 @@ class ControllerExtensionPaymentBeGateway extends Controller {
 
     $post_array = json_decode($postData, true);
 
+    // обработка массивов с данными о транзакциях с другими названиями
+    if (isset($post_array['last_transaction'])) {
+    	$post_array['transaction'] = [
+    		'uid' 					=> $post_array['last_transaction']['uid'],
+    		'status'				=> $post_array['last_transaction']['status'],
+    		'message'				=> $post_array['last_transaction']['message'],
+    		'tracking_id'			=> $post_array['product']['name'],
+    		'amount'				=> $post_array['product']['amount'],
+    		'currency'				=> $post_array['product']['currency'],
+    		'created_at'			=> $post_array['product']['created_at'],
+    		'paid_at'				=> $post_array['last_transaction']['created_at'],
+    		'payment_method_type'	=> ''
+    	];
+    }
+    
+    if (isset($post_array['order'])) {
+        $post_array['transaction'] = [
+    		'uid' 					=> $post_array['order']['additional_data']['request_id'],
+    		'status'				=> $post_array['status'],
+    		'message'				=> $post_array['message'],
+    		'tracking_id'			=> $post_array['order']['tracking_id'],
+    		'amount'				=> $post_array['order']['amount'],
+    		'currency'				=> $post_array['order']['currency'],
+    		'created_at'			=> $post_array['payment_method']['created_at'],
+    		'paid_at'				=> $post_array['payment_method']['updated_at'],
+    		'payment_method_type'	=> ''
+    	];
+    }
+    // обработка end
+    
+    //обработка вебхука из Битрикс
+    if (isset($post_array['transaction']['additional_data']['platform_data']) && $post_array['transaction']['additional_data']['platform_data'] == 'Bitrix24') {
+  		// передача вебхука в Битрикс домен сохранияет модуль от api.pro
+      $ch = curl_init('https://'.$this->config->get('b24_key_domain').'/bitrix/tools/sale_ps_result.php');
+  		curl_setopt($ch, CURLOPT_POST, 1);
+  		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+  		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  		$response = curl_exec($ch);
+  		curl_close($ch);
+  		
+  		// Вывод email-адреса из строки описания
+  		preg_match('/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/', $post_array['transaction']['description'], $matches);
+  		$email = $matches[0];
+  		
+  		// Проверка, существует ли в строке email, который оканчивается на fotomagazin.by
+  		if (preg_match('/\b[A-Za-z0-9._%+-]+@fotomagazin\.by\b/', $email)) {
+  		    // Извлечение числа до @
+  		    preg_match('/\d+/', $email, $matches);
+  		    $number = $matches[0];
+  		}
+  		
+      if (isset($number)) {
+      		$post_array['transaction']['tracking_id'] = (int)$number;
+      } else {
+      		$post_array['transaction']['tracking_id'] = $this->model_payment_begateway->getOrderByEmail($email, $post_array['transaction']['amount'] / 100);
+      }
+    }
+    //обработка end
+    
     if (!isset($post_array['transaction'])) {
       return;
     }
@@ -201,7 +260,8 @@ class ControllerExtensionPaymentBeGateway extends Controller {
       } 
     }
 
-    $this->log->write("Webhook received: $postData");
+    //$this->log->write("Webhook received: $postData");
+    $message = "$paid_at поступил платеж на сумму $transaction_amount по заказу <b>$order_id</b>." . PHP_EOL . "Номер операции: $transaction_id";
 
     $this->load->model('checkout/order');
 
@@ -211,7 +271,15 @@ class ControllerExtensionPaymentBeGateway extends Controller {
       $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('config_order_status_id'));
 
       if(isset($status) && $status == 'successful'){
-        $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_begateway_completed_status_id'), "UID: $transaction_id. $three_d Processor message: $transaction_message", true);
+        $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_begateway_completed_status_id'), $message, true);
+        /* сохранение в БД */
+        $this->model_payment_begateway->saveTransaction($post_array['transaction'], $message);
+        /* передача лида в Б24 */
+    		$this->load->model('module/b24_order');
+		    $get_b24_order = $this->model_module_b24_order->getById($order_id);
+		    //$this->log->write('controller/payment/begateway.php $get_b24_order');
+		    //$this->log->write($get_b24_order);
+		    if (empty($get_b24_order['b24_order_id'])) $this->model_module_b24_order->addOrder($order_id);
       }
       if(isset($status) && ($status == 'failed')){
         $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_begateway_failed_status_id'), "UID: $transaction_id. Fail reason: $transaction_message", true);
