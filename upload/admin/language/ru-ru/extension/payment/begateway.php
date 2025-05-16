@@ -12,11 +12,11 @@ $_['text_begateway']      = '<img src="view/image/payment/begateway.png" alt="" 
 $_['entry_order_status']                = 'Статус заказа после оплаты';
 $_['entry_order_status_completed_text'] = 'Статус заказа (успешная оплата)';
 $_['entry_order_status_failed_text']    = 'Статус заказа (неуспешная оплата)';
-$_['entry_order_status_pending']        = 'Order Status Pending';
-$_['entry_order_status_expiredate']     = 'Order Status Expiredate';
-$_['entry_order_status_canceled']       = 'Order Status Canceled';
-$_['entry_order_status_failed']         = 'Order Status Failed';
-$_['entry_order_status_processing']     = 'Order Status Processing';
+$_['entry_order_status_pending']        = 'Статус заказа до оплаты';
+$_['entry_order_status_expiredate']     = 'Статус заказа при истечении срока оплаты';
+$_['entry_order_status_canceled']       = 'Статус заказа при отмене';
+$_['entry_order_status_failed']         = 'Статус заказа при неудачной оплате';
+$_['entry_order_status_processing']     = 'Статус заказа после успешной оплаты';
 
 $_['entry_geo_zone']         = 'Географическая зона';
 $_['entry_status']           = 'Статус';
@@ -36,9 +36,13 @@ $_['entry_payment_begateway_erip_service_no'] = 'Код услуги ЕРИП';
 $_['entry_test_mode'] = 'Тестовый режим';
 $_['entry_test_mode_help'] = 'Включает возможность приема тестовых платежей';
 
+// Telegram
+$_['entry_tlgrm_bp_notification_id'] = 'ID Telegram-чата для отправки уведомлений';
+$_['entry_tlgrm_bp_notification_token'] = 'ID Telegram бота';
+
 // Error
 $_['error_permission']      = 'Внимание: У вас нет прав для изменения настроек модуля оплаты!';
-$_['error_companyid']       = 'Id магазина обязателен!';
+$_['error_companyid']       = 'ID магазина обязателен!';
 $_['error_encyptionkey']    = 'Ключ магазина обязателен!';
 $_['error_domain_payment_page']    = 'Домен платежного шлюза обязателен!';
 $_['error_payment_type']		= 'Требуется указать доступные способы оплаты!';
