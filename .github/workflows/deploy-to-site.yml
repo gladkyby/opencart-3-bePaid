@@ -31,5 +31,5 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
-          git commit -m "Автоматическое обновление модуля bePaid"
+          git diff --cached --quiet || git commit -m "Автоматическое обновление модуля bePaid"
           git push
