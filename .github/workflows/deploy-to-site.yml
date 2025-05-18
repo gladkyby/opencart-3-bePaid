@@ -1,0 +1,35 @@
+name: Deploy to OpenCart
+
+on:
+  push:
+    branches:
+      - main   # или master — проверь свою ветку
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this module
+        uses: actions/checkout@v3
+
+      - name: Checkout site repository
+        uses: actions/checkout@v3
+        with:
+          repository: gladkyby/fotomagazin
+          path: site
+          token: ${{ secrets.SITE_PUSH_TOKEN }}
+
+      - name: Copy files into site
+        run: |
+          cp -r upload/admin/* admin/
+          cp -r upload/catalog/* catalog/
+
+      - name: Commit and push changes
+        run: |
+          cd site
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Автоматическое обновление модуля bePaid"
+          git push
