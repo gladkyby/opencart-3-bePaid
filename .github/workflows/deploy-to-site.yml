@@ -3,7 +3,7 @@ name: Deploy to OpenCart
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   deploy:
@@ -32,4 +32,4 @@ jobs:
           git config user.email "actions@github.com"
           git add .
           git diff --cached --quiet || git commit -m "Автоматическое обновление модуля bePaid"
-          git push
+          git push origin HEAD:dev
