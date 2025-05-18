@@ -292,8 +292,8 @@ class ControllerExtensionPaymentBeGateway extends Controller {
 
   public function sendNotification($message) {
     	$link = 'https://api.telegram.org/bot';
-    	$bot_token = $this->config->get('tlgrm_bp_notification_token');
-	$chat_id = trim($this->config->get('tlgrm_bp_notification_id'));
+    	$bot_token = $this->config->get('payment_begateway_tlgrm_token');
+	$chat_id = trim($this->config->get('payment_begateway_tlgrm_id'));
 	
 	if (empty($bot_token) || empty($chat_id)) return;
         $sendToTelegram = $link . $bot_token;
