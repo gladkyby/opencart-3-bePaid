@@ -37,8 +37,8 @@ $_['entry_test_mode'] = 'Тестовый режим';
 $_['entry_test_mode_help'] = 'Включает возможность приема тестовых платежей';
 
 // Telegram
-$_['entry_tlgrm_bp_notification_id'] = 'ID Telegram чата';
-$_['entry_tlgrm_bp_notification_token'] = 'Token Telegram бота';
+$_['entry_payment_begateway_tlgrm_id'] = 'ID Telegram чата';
+$_['entry_payment_begateway_tlgrm_token'] = 'Token Telegram бота';
 
 // Error
 $_['error_permission']      = 'Внимание: У вас нет прав для изменения настроек модуля оплаты!';
