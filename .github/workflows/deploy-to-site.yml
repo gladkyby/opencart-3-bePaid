@@ -22,8 +22,8 @@ jobs:
 
       - name: Copy files into site
         run: |
-          cp -r upload/admin/* admin/
-          cp -r upload/catalog/* catalog/
+          cp -r upload/admin/* site/admin/
+          cp -r upload/catalog/* site/catalog/
 
       - name: Commit and push changes
         run: |
