@@ -18,7 +18,7 @@ jobs:
         with:
           repository: gladkyby/fotomagazin
           path: site
-          token: ${{ secrets.SITE_PUSH_TOKEN }}
+          token: ${{ secrets.FMG_PUSH_TOKEN }}
 
       - name: Copy files into site
         run: |
