@@ -49,8 +49,8 @@ class ControllerExtensionPaymentBeGateway extends Controller {
     $data['entry_payment_type_erip'] = $this->language->get('entry_payment_type_erip');
     $data['entry_test_mode'] = $this->language->get('entry_test_mode');
     $data['entry_test_mode_help'] = $this->language->get('entry_test_mode_help');
-    $data['entry_tlgrm_bp_notification_id'] = $this->language->get('entry_tlgrm_bp_notification_id');
-    $data['entry_tlgrm_bp_notification_token'] = $this->language->get('entry_tlgrm_bp_notification_token');
+    $data['entry_payment_begateway_tlgrm_id'] = $this->language->get('entry_payment_begateway_tlgrm_id');
+    $data['entry_payment_begateway_tlgrm_token'] = $this->language->get('entry_payment_begateway_tlgrm_token');
     $data['button_save'] = $this->language->get('button_save');
     $data['button_cancel'] = $this->language->get('button_cancel');
     $data['tab_general'] = $this->language->get('tab_general');
@@ -189,16 +189,16 @@ class ControllerExtensionPaymentBeGateway extends Controller {
       $data['payment_begateway_sort_order'] = $this->config->get('payment_begateway_sort_order');
     }
 
-    if (isset($this->request->post['tlgrm_bp_notification_id'])) {
-      $data['tlgrm_bp_notification_id'] = $this->request->post['tlgrm_bp_notification_id'];
+    if (isset($this->request->post['payment_begateway_tlgrm_id'])) {
+      $data['payment_begateway_tlgrm_id'] = $this->request->post['payment_begateway_tlgrm_id'];
     } else {
-      $data['tlgrm_bp_notification_id'] = $this->config->get('tlgrm_bp_notification_id');
+      $data['payment_begateway_tlgrm_id'] = $this->config->get('payment_begateway_tlgrm_id');
     }
 
-    if (isset($this->request->post['tlgrm_bp_notification_token'])) {
-      $data['tlgrm_bp_notification_token'] = $this->request->post['tlgrm_bp_notification_token'];
+    if (isset($this->request->post['payment_begateway_tlgrm_token'])) {
+      $data['payment_begateway_tlgrm_token'] = $this->request->post['payment_begateway_tlgrm_token'];
     } else {
-      $data['tlgrm_bp_notification_token'] = $this->config->get('tlgrm_bp_notification_token');
+      $data['payment_begateway_tlgrm_token'] = $this->config->get('payment_begateway_tlgrm_token');
     }
 
     $data['user_token'] = $this->session->data['user_token'];
